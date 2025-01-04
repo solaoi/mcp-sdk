@@ -24,8 +24,8 @@ impl<T: Transport> Client<T> {
     pub async fn initialize(&self, client_info: Implementation) -> Result<InitializeResponse> {
         let request = json!({
             "protocolVersion": LATEST_PROTOCOL_VERSION.to_string(),
-            "capabilities": ClientCapabilities::default(),
-            "clientInfo"
+            "capabilities": {},
+            "clientInfo": client_info
         });
         let response = self
             .request(
