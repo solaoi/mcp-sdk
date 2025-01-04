@@ -9,6 +9,7 @@ use crate::{
 
 use anyhow::Result;
 use tracing::debug;
+use serde_json::json;
 
 #[derive(Clone)]
 pub struct Client<T: Transport> {
@@ -21,15 +22,15 @@ impl<T: Transport> Client<T> {
     }
 
     pub async fn initialize(&self, client_info: Implementation) -> Result<InitializeResponse> {
-        let request = InitializeRequest {
+        let request = json!({
             protocol_version: LATEST_PROTOCOL_VERSION.to_string(),
             capabilities: ClientCapabilities::default(),
             client_info,
-        };
+        });
         let response = self
             .request(
                 "initialize",
-                Some(serde_json::to_value(request)?),
+                Some(request),
                 RequestOptions::default(),
             )
             .await?;
