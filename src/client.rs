@@ -1,15 +1,12 @@
 use crate::{
     protocol::{Protocol, ProtocolBuilder, RequestOptions},
     transport::Transport,
-    types::{
-        ClientCapabilities, Implementation, InitializeRequest, InitializeResponse,
-        LATEST_PROTOCOL_VERSION,
-    },
+    types::{Implementation, InitializeResponse, LATEST_PROTOCOL_VERSION},
 };
 
 use anyhow::Result;
-use tracing::debug;
 use serde_json::json;
+use tracing::debug;
 
 #[derive(Clone)]
 pub struct Client<T: Transport> {
@@ -28,11 +25,7 @@ impl<T: Transport> Client<T> {
             "clientInfo": client_info
         });
         let response = self
-            .request(
-                "initialize",
-                Some(request),
-                RequestOptions::default(),
-            )
+            .request("initialize", Some(request), RequestOptions::default())
             .await?;
         let response: InitializeResponse = serde_json::from_value(response)
             .map_err(|e| anyhow::anyhow!("Failed to parse response: {}", e))?;

@@ -1,5 +1,6 @@
 use super::{Message, Transport};
 use anyhow::Result;
+use std::collections::HashMap;
 use std::io::{self, BufRead, Write};
 use std::process::{Child, Command, Stdio};
 use std::sync::{Arc, Mutex};
@@ -49,16 +50,18 @@ pub struct ClientStdioTransport {
     child: Arc<Mutex<Option<Child>>>,
     program: String,
     args: Vec<String>,
+    envs: HashMap<String, String>
 }
 
 impl ClientStdioTransport {
-    pub fn new(program: &str, args: &[&str]) -> Result<Self> {
+    pub fn new(program: &str, args: &[&str], envs: &HashMap<String, String>) -> Result<Self> {
         Ok(ClientStdioTransport {
             stdin: Arc::new(Mutex::new(None)),
             stdout: Arc::new(Mutex::new(None)),
             child: Arc::new(Mutex::new(None)),
             program: program.to_string(),
             args: args.iter().map(|&s| s.to_string()).collect(),
+            envs: envs.clone(),
         })
     }
 }
@@ -98,6 +101,7 @@ impl Transport for ClientStdioTransport {
     fn open(&self) -> Result<()> {
         let mut child = Command::new(&self.program)
             .args(&self.args)
+            .envs(&self.envs)
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .spawn()?;
